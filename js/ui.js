@@ -225,6 +225,7 @@
     row('Mouse sensitivity', 'sens', .3, 2.5, .05, v => v.toFixed(2) + '×');
     row('Volume', 'vol', 0, 1, .05, v => Math.round(v * 100) + '%', v => G.setVolume(v));
     row('Music', 'mus', 0, 1, .05, v => v ? Math.round(v * 100) + '%' : 'off', v => G.setMusic(v));
+    row('Wind', 'wind', 0, 1, .05, v => v ? Math.round(v * 100) + '%' : 'off');      // read by the sound every tenth of a second
     row('Field of view', 'fov', 60, 95, 1, v => v + '°');
     row('Brightness', 'bright', .7, 1.6, .05, v => Math.round(v * 100) + '%');
     const GQ = { high: 'High — everything', medium: 'Medium — no glow or contact shadows, thinner grass', low: 'Low — no shadows, sparse grass' }, q = h('label', 'set'), qb = h('button', 'small', GQ[o.gfx] || GQ.high);

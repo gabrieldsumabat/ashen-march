@@ -22,8 +22,11 @@
     const sr = ac.sampleRate; white = ac.createBuffer(1, sr * 2, sr); brown = ac.createBuffer(1, sr * 4, sr);
     { const d = white.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
     {
-      const d = brown.getChannelData(0), n = 3000; let v = 0; for (let i = 0; i < d.length; i++) { v = (v + (Math.random() * 2 - 1) * .02) / 1.02; d[i] = v * 3.5; }
-      for (let i = 0; i < n; i++) { const k = i / n; d[d.length - n + i] = d[d.length - n + i] * (1 - k) + d[i] * k; }      // so the loop does not click
+      // made n samples long too, then played from n on: its tail is faded into its own first n samples, so the last sample
+      // leads straight into the first one heard. (Fading the tail toward the very start left a jump at the seam: a tick every loop.)
+      const d = brown.getChannelData(0), L = d.length, n = 3000, a = new Float32Array(L + n); let v = 0;
+      for (let i = 0; i < a.length; i++) { v = (v + (Math.random() * 2 - 1) * .02) / 1.02; a[i] = v * 3.5; }
+      for (let j = 0; j < L; j++) { const i = j - (L - n); d[j] = i < 0 ? a[j + n] : a[j + n] * (1 - i / n) + a[i] * (i / n); }
     }
   }
   // the echo of a place, made of noise that dies away and dulls as it dies; taps are single slaps off far walls
@@ -320,8 +323,10 @@
     const chain = (...n) => { for (let i = 0; i < n.length - 1; i++) n[i].connect(n[i + 1]); };
     L = {};
     // wind: a low body that swells and sinks, and a thin whistle over it when it blows hard or finds a gap in a wall
-    L.windF = flt('bandpass', 380, .6); L.wind = gain(); chain(loop(brown), L.windF, L.wind, B.amb);
-    L.whisF = flt('bandpass', 1400, 12); L.whis = gain(); chain(loop(white), L.whisF, L.whis, B.amb);
+    // Both go through a lowpass so no hiss gets past (heard as a steady scratching), and the Wind setting turns them down together.
+    L.windBus = gain(opt('wind', .6)); L.windBus.connect(B.amb);
+    L.windF = flt('bandpass', 300, .6); L.wind = gain(); chain(loop(brown), L.windF, flt('lowpass', 520, .5), L.wind, L.windBus);
+    L.whisF = flt('bandpass', 1100, 14); L.whis = gain(); chain(loop(white), L.whisF, flt('lowpass', 1600, .5), L.whis, L.windBus);
     // rain: the hiss of it falling and the body of it striking. Under a roof only the drumming comes through.
     L.rainLP = flt('lowpass', 16000, .5); L.rain1 = gain(); L.rain2 = gain(); L.rain3 = gain();
     chain(loop(white, .8), flt('bandpass', 5200, .4), flt('lowpass', 7500, .5), L.rain1, L.rainLP);      // the thin hiss of it falling, kept low
@@ -367,8 +372,10 @@
     const on = C.on, sh = C.shelter, open = 1 - sh, raid = on * (1 - C.hollow), quiet = raid > .5 && C.rain < .45;
     if (Math.random() < .04) gustTo = rnd(.2, 1); gust += (gustTo - gust) * .05;
     const w = C.wind * (.5 + .8 * gust);
-    set(L.wind.gain, (.02 + .26 * w) * (1 - .55 * sh) * on); set(L.windF.frequency, 250 + 430 * w * (1 - .4 * sh), .6);
-    set(L.whis.gain, (w * w * .018 + w * sh * .012) * on); set(L.whisF.frequency, 900 + 900 * gust + 500 * w, .9);
+    // it comes and goes with the gusts rather than sitting there; under a roof it is mostly kept out; the whistle only in a real blow
+    set(L.wind.gain, .16 * w * gust * (1 - .75 * sh) * on, .8); set(L.windF.frequency, 200 + 300 * w * (1 - .4 * sh), .8);
+    set(L.whis.gain, Math.max(0, w - .6) * .02 * gust * on, .9); set(L.whisF.frequency, 800 + 600 * gust + 300 * w, .9);
+    set(L.windBus.gain, opt('wind', .6), .1);
     set(L.rain1.gain, 0); set(L.rain2.gain, 0); set(L.rain3.gain, 0); set(L.rainLP.frequency, lerp(16000, 850, sh));
     set(L.fire.gain, C.fire * .14 * on); if (L.firePan.pan) set(L.firePan.pan, clamp(C.firePan, -1, 1), .12);
     set(L.water.gain, C.water * .1 * (.75 + .25 * Math.sin(now * 1.9)) * on); if (L.waterPan.pan) set(L.waterPan.pan, clamp(C.waterPan, -1, 1), .12);

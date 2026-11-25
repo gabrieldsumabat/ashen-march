@@ -57,7 +57,7 @@
       up: {}, jobs: [], rep: {}, spent: {}, bought: {}, tasks: {}, prog: {}, flags: {},
       stats: { raids: 0, survived: 0, deaths: 0, kills: {}, maps: {}, gleans: 0, freed: 0, spared: 0 }, journal: [], kit: null,
       history: [], places: {},      // history: the last ventures, for the Journal. places: the named places you have set foot in, by map.
-      opts: { sens: 1, vol: .5, mus: .6, fov: 74, bright: 1, gfx: 'high' }, returns: [], gleanDay: 2, folk: 0, boy: null, pell: 'blades', note: 'Maud: "Take what you need from the shelves and put it on. Go up by the South Ford and learn the ground before you try anything clever. Be down again before dark." — There is linen and a pot of salve on your belt: ' + 'H treats your worst hurt.' + ' ' + 'Drag things from the stash onto yourself; right-click anything for more.' + ' Tasks, trade and the shelter are on the tabs to the right.'
+      opts: { sens: 1, vol: .5, mus: .6, wind: .6, fov: 74, bright: 1, gfx: 'high' }, returns: [], gleanDay: 2, folk: 0, boy: null, pell: 'blades', note: 'Maud: "Take what you need from the shelves and put it on. Go up by the South Ford and learn the ground before you try anything clever. Be down again before dark." — There is linen and a pot of salve on your belt: ' + 'H treats your worst hurt.' + ' ' + 'Drag things from the stash onto yourself; right-click anything for more.' + ' Tasks, trade and the shelter are on the tabs to the right.'
     };
     for (const z of G.ZONES) s.hp[z] = 1;
     s.eq.weapon = G.mk('hatchet'); s.eq.body = G.mk('leather_jack'); s.eq.pack = G.mk('sack'); s.eq.belt = G.mk('rope_belt');
@@ -171,7 +171,7 @@
     s.history = (Array.isArray(s.history) ? s.history : []).filter(e => e && typeof e === 'object').slice(-20).map(e => ({ day: int(e.day, 1, 1e5, 1), map: G.MAPS.some(m => m.id === e.map) ? e.map : G.MAPS[0].id, out: ['extract', 'dead', 'lost'].includes(e.out) ? e.out : 'lost', cut: !!e.cut, min: int(e.min, 0, 999, 0), kills: int(e.kills, 0, 999, 0), val: int(e.val, -1e7, 1e7, 0), with: typeof e.with === 'string' ? e.with.slice(0, 60) : '' }));
     const pl = obj(s.places); s.places = {}; for (const m of G.MAPS) { const z = obj(pl[m.id]); s.places[m.id] = {}; for (const k of Object.keys(z).slice(0, 80)) s.places[m.id][k] = 1; }
     const op = obj(s.opts);
- s.opts = { sens: num(op.sens, .3, 2.5, 1), vol: num(op.vol, 0, 1, .5), mus: num(op.mus, 0, 1, .6), fov: int(op.fov, 60, 95, 74), bright: num(op.bright, .7, 1.6, 1), gfx: ['high', 'medium', 'low'].includes(op.gfx) ? op.gfx : 'high' };
+ s.opts = { sens: num(op.sens, .3, 2.5, 1), vol: num(op.vol, 0, 1, .5), mus: num(op.mus, 0, 1, .6), wind: num(op.wind, 0, 1, .6), fov: int(op.fov, 60, 95, 74), bright: num(op.bright, .7, 1.6, 1), gfx: ['high', 'medium', 'low'].includes(op.gfx) ? op.gfx : 'high' };
     s.note = typeof s.note === 'string' ? s.note : null; s.pell = own(G.SKILLS, s.pell) ? s.pell : 'blades';
     s.boy = s.boy && typeof s.boy === 'object' && G.BOY[s.boy.tier] ? { tier: int(s.boy.tier, 0, G.BOY.length - 1, 0), day: int(s.boy.day, 1, 1e6, s.day + 1) } : null;
     s.jobs = (Array.isArray(s.jobs) ? s.jobs : []).filter(j => j && G.RECIPES.some(r => r.id === j.r)).slice(0, 40).map(j => ({ r: j.r, day: int(j.day, 1, 1e6, s.day + 1) }));
