@@ -378,7 +378,9 @@
     set(L.drone.gain, ten > .04 ? .08 + .32 * ten : 0, .8); set(L.droneF.frequency, 170 + 520 * ten, .8);
     if (ten > .45) { if (beatT < now) { beatT = now + .06; beatN = 0; } while (beatT < now + .22) { const k = [1, 0, .45, 0, .8, 0, .45, .3][beatN++ & 7]; if (k) drum(beatT - now, k * (ten - .15) * .45); beatT += .27; } }
     // the spit and crack of a fire
-    if (C.fire * on > .03) for (let i = Math.floor(C.fire * 1.5 + Math.random()); i-- > 0;) { const c = one(C.fire * .3, clamp(C.firePan + rnd(-.15, .15), -1, 1), .04, rnd(0, .1)); nz(c, 0, rnd(.004, .03), rnd(1800, 6500), rnd(900, 2500), rnd(.2, 1), 'bandpass', rnd(1, 4)); if (Math.random() < .04) tn(c, 0, .05, rnd(220, 380), 110, .5); }
+    // now and then, not all the time: a pop every half second or so, sometimes two or three close together.
+    // (It once threw one to two every tick, ten to twenty a second, and a hearth became a steady scratching hiss.)
+    if (C.fire * on > .03 && Math.random() < C.fire * .22) for (let i = Math.random() < .2 ? irnd(2, 3) : 1; i-- > 0;) { const c = one(C.fire * .22, clamp(C.firePan + rnd(-.15, .15), -1, 1), .04, rnd(0, .1) + i * rnd(.04, .12)); nz(c, 0, rnd(.004, .02), rnd(1200, 3800), rnd(700, 1600), rnd(.3, 1), 'bandpass', rnd(1.5, 4)); if (Math.random() < .12) tn(c, 0, .05, rnd(220, 380), 110, .5); }
     // single drops striking close by: leaves, mud, your own shoulders. They are what makes rain rain and not a hiss.
     if (RAIN_SOUND && C.rain * on > .04) for (let i = 0, n = Math.round(1 + C.rain * 6 * (.6 + Math.random() * .8) * (.35 + .65 * open)); i < n; i++) {
       // most strike leaves and earth: a short high tick. Some find a puddle: a lower, rounder plop. A few are close and loud.
