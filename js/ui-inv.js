@@ -324,7 +324,7 @@
     // the same move a double-click makes: to the stash or the thing being searched if it is yours, into your own kit if it is not
     if (mine(loc)) { if (!raid) opt('Put in the stash', () => quick(it, loc)); else if (loot) opt(`Leave in the ${loot.name[0].toLowerCase() + loot.name.slice(1)}`, () => quick(it, loc)); } else opt(raid ? 'Take' : 'Take with you', () => quick(it, loc));
     if (!loc.slot && d.w !== d.h) opt('Turn', () => { const ent = loc.c.items.find(o => o.it === it); if (ent && G.inv.fits(loc.c, it, ent.x, ent.y, it, !it.r)) { it.r = !it.r || undefined; changed(); } else toast('No room to turn it there.'); });
-    if (it.n > 1 && !loc.slot) opt('Split the stack', () => { const half = Math.floor(it.n / 2), piece = Object.assign({}, it, { n: half }); it.n -= half; const s = G.inv.spot(loc.c, piece); if (s) { piece.r = s.r || undefined; loc.c.items.push({ it: piece, x: s.x, y: s.y }); } else it.n += half; changed(); });
+    if (it.n > 1 && !loc.slot) opt('Split the stack', () => { const half = Math.floor(it.n / 2), piece = Object.assign({}, it, { n: half }); it.n -= half; if (G.raidHad && G.raidHad.has(it)) G.raidHad.add(piece); const s = G.inv.spot(loc.c, piece); if (s) { piece.r = s.r || undefined; loc.c.items.push({ it: piece, x: s.x, y: s.y }); } else it.n += half; changed(); });
     if (!raid) {
       const best = G.bestSell(it);
       if (best && !(it.c && it.c.items.length)) opt(`Sell to ${G.TRADERS[best.tid].name} for ${best.price} silver`, () => { G.sellTo(best.tid, it); takeFrom(loc, it); G.sfx('coin'); changed(); });

@@ -28,7 +28,7 @@
     if (id === 'dispatch') it.t = Math.floor(Math.random() * G.LETTERS.length);
     return it;
   };
-  G.canStack = (a, b) => a !== b && a.id === b.id && !!I[a.id].stack && !!a.fir === !!b.fir;
+  G.canStack = (a, b) => a !== b && a.id === b.id && !!I[a.id].stack && !!a.fir === !!b.fir && (!G.raidHad || G.raidHad.has(a) === G.raidHad.has(b));   // in a raid, what you brought never stacks with what you found
   const condF = it => (it.dur != null ? .3 + .7 * it.dur : 1) * (it.u != null ? it.u / I[it.id].pool : 1);
   G.itemValue = it => { let v = I[it.id].value * (it.n || 1) * condF(it); if (it.c) for (const o of it.c.items) v += G.itemValue(o.it); return v; };
   G.itemWeight = it => { let w = I[it.id].weight * (it.n || 1); if (it.c) for (const o of it.c.items) w += G.itemWeight(o.it); return w; };

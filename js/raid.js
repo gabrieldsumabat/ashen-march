@@ -29,6 +29,7 @@
     // net: null alone, else 'host' or 'client'. players: you, and on the host your friends too (whom the enemies may mark).
     // ghost: you are out, but friends are still up there and this machine must go on moving the world for them.
     const R = X.R = { net: net ? net.role : null, players: [], nextId: 1, lootSeq: W.containers.length, ghost: false, asking: null, map: M, time: 0, total: M.minutes * 60, fighters: [], loot: W.containers.slice(), shots: [], msgs: [], pop: [], shake: 0, slow: 0, hurt: 0, over: false, paused: false, menu: false, kills: [], xp: { kill: 0, loot: 0, explore: 0, heal: 0 }, startValue: G.carriedValue(), extT: 0, dusk: 0, ui: false, near: null, nearDoor: null, deathT: 0, cause: '', hint: 25, wx, gleaner: gle, banditsHostile: false, had: new Set(G.allCarried(true)), card: 5, thunder: rand(20, 60), heart: 0, seenZones: {}, zone: null, zoneCard: null, waves: W.waves.slice(), sneak: 0, held: false, lateSaid: {}, exitBlock: '', exitZone: null };
+    G.raidHad = R.had;      // read by G.canStack: a find merged into a stack you brought would lose its "found in the ruins" mark
     // friends come in side by side
     let sx = W.start.x, sy = W.start.y; if (net) { const o = [[0, 0], [24, 0], [-24, 0], [0, 24]][net.slot & 3]; if (!X.boxSolid(sx + o[0], sy + o[1], 6)) { sx += o[0]; sy += o[1]; } }
     const P = X.P = X.mkF({ name: 'you', hp: 1, speed: 1, skill: 1, faction: 'you' }, sx, sy);
@@ -69,6 +70,7 @@
     const s = G.save, gle = R.gleaner, tier = W.tier, out = outcome === 'extract', found = [];
     if (document.pointerLockElement) document.exitPointerLock();
     const info = { cut: !!cut, outcome, cause: R.cause, kills: R.kills, time: R.time, map: R.map.name, gleaner: gle, dayNo: s.day, found: [], xp: [], xpTotal: 0, levels: 0, ups: [], insured: 0, coins: 0, exit: R.exitZone ? R.exitZone.name : '', night: null, value: 0 };
+    G.raidHad = null;
     if (out) for (const it of G.allCarried(true)) { it.ins = undefined; if (!R.had.has(it)) { it.fir = true; found.push(it); } }
     info.found = found.filter(it => it.id !== 'coin');
     const foundVal = found.reduce((v, it) => v + I[it.id].value * (it.n || 1), 0);
